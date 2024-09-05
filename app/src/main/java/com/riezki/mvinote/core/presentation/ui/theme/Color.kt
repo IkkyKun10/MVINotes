@@ -1,4 +1,4 @@
-package com.riezki.mvinote.ui.theme
+package com.riezki.mvinote.core.presentation.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
