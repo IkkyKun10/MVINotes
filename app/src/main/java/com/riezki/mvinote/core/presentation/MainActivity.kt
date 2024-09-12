@@ -4,44 +4,83 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.riezki.mvinote.add_note.presentation.AddNoteScreen
+import com.riezki.mvinote.add_note.presentation.AddNoteViewModel
 import com.riezki.mvinote.core.presentation.ui.theme.MVINoteTheme
+import com.riezki.mvinote.note_list.presentation.NoteListScreen
+import com.riezki.mvinote.note_list.presentation.NoteListViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             MVINoteTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                NavigationHost()
             }
         }
     }
-}
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+    @Composable
+    fun NavigationHost(
+        modifier: Modifier = Modifier,
+        navController: NavHostController = rememberNavController()
+    ) {
+        NavHost(
+            modifier = modifier,
+            navController = navController,
+            startDestination = Screen.NoteList
+        ) {
+            composable<Screen.NoteList> {
+                val viewModel = hiltViewModel<NoteListViewModel>()
+                val noteListState by viewModel.noteListState.collectAsStateWithLifecycle()
+                val orderByTitle by viewModel.orderByTitle.collectAsStateWithLifecycle()
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    MVINoteTheme {
-        Greeting("Android")
+                LaunchedEffect(key1 = true) {
+                    viewModel.loadNotes()
+                }
+
+                NoteListScreen(
+                    onNavigateToAddNote = { navController.navigate(Screen.AddNote) },
+                    noteList = noteListState,
+                    onChangeOrder = viewModel::changeOrder,
+                    onDeleteNote = viewModel::deleteNote,
+                    orderByTitle = orderByTitle
+                )
+            }
+
+            composable<Screen.AddNote> {
+                val viewModel = hiltViewModel<AddNoteViewModel>()
+
+                val addNoteState by viewModel.addNoteState.collectAsStateWithLifecycle()
+                val noteSaved by viewModel.notedSavedChannel.collectAsStateWithLifecycle(initialValue = false)
+
+                AddNoteScreen(
+                    onSave = {
+                        navController.popBackStack()
+                    },
+                    addNoteState = addNoteState,
+                    noteSaved = noteSaved,
+                    onUpdateImage = viewModel::onAction,
+                    onUpdateTitle = viewModel::onAction,
+                    onUpdateDescription = viewModel::onAction,
+                    onSaveNote = viewModel::onAction,
+                    onUpdateSearchQuery = viewModel::onAction,
+                    onPickImage = viewModel::onAction
+                )
+            }
+        }
     }
 }

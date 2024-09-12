@@ -3,6 +3,7 @@ package com.riezki.mvinote.core.di
 import android.app.Application
 import android.content.Context
 import androidx.room.Room
+import com.riezki.mvinote.add_note.domain.usecase.SearchImagesUseCase
 import com.riezki.mvinote.add_note.domain.usecase.UpsertNoteUseCase
 import com.riezki.mvinote.core.data.local.NoteDb
 import com.riezki.mvinote.core.data.remote.ktor.KtorClient
@@ -22,12 +23,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
-
-    @Provides
-    @Singleton
-    fun provideKtorClient(context: Application): KtorClient {
-        return KtorClient(context)
-    }
 
     @Provides
     @Singleton
@@ -73,6 +68,12 @@ object AppModule {
     @Singleton
     fun provideUpsertNoteUseCase(repository: NoteRepository): UpsertNoteUseCase {
         return UpsertNoteUseCase(repository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideSearchImagesUseCase(imagesRepository: ImagesRepository): SearchImagesUseCase {
+        return SearchImagesUseCase(imagesRepository)
     }
 
 }

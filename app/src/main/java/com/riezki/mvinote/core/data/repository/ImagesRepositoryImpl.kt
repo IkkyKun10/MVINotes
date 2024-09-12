@@ -1,5 +1,6 @@
 package com.riezki.mvinote.core.data.repository
 
+import com.riezki.mvinote.core.data.mapper.toImages
 import com.riezki.mvinote.core.data.remote.ktor.KtorClient
 import com.riezki.mvinote.core.domain.model.Images
 import com.riezki.mvinote.core.domain.repository.ImagesRepository
@@ -13,6 +14,6 @@ class ImagesRepositoryImpl(
 ) : ImagesRepository {
 
     override suspend fun searchImages(query: String): Images? {
-        TODO("Not yet implemented")
+        return ktorClient.searchImage(query)?.toImages()
     }
 }
