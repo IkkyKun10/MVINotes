@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
@@ -25,6 +26,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,6 +42,8 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import coil.size.Size
 import com.riezki.mvinote.R
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /**
  * @author riezkymaisyar
@@ -46,9 +51,9 @@ import com.riezki.mvinote.R
 
 @Composable
 fun AddNoteScreen(
-    onSave: () -> Unit,
     addNoteState: AddNoteState,
-    noteSaved: Boolean,
+    noteSaved: State<Boolean>,
+    onSave: () -> Unit,
     onUpdateImage: (AddNoteActions) -> Unit,
     onUpdateTitle: (AddNoteActions) -> Unit,
     onUpdateDescription: (AddNoteActions) -> Unit,
@@ -57,21 +62,12 @@ fun AddNoteScreen(
     onPickImage: (AddNoteActions) -> Unit
 ) {
     val context = LocalContext.current
-    LaunchedEffect(key1 = true) {
-        if (noteSaved) {
-            onSave()
-        } else {
-            Toast.makeText(
-                context,
-                R.string.error_saving_note,
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-    }
+    val scope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .statusBarsPadding()
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -132,6 +128,18 @@ fun AddNoteScreen(
                 .testTag("save_button"),
             onClick = {
                 onSaveNote(AddNoteActions.SaveNote)
+                scope.launch {
+                    delay(500L)
+                    if (noteSaved.value) {
+                        onSave()
+                    } else {
+                        Toast.makeText(
+                            context,
+                            R.string.error_saving_note,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
             }
         ) {
             Text(
@@ -156,6 +164,7 @@ fun AddNoteScreen(
                 },
                 onImageClick = {
                     onPickImage(AddNoteActions.PickImage(it))
+                    onUpdateImage(AddNoteActions.UpdateImagesDialogVisibility)
                 }
             )
         }

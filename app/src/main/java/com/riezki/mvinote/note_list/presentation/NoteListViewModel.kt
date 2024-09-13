@@ -31,7 +31,9 @@ class NoteListViewModel @Inject constructor(
 
     fun loadNotes() = viewModelScope.launch {
         getAllNotes(orderByTitle.value).collectLatest { notes ->
-            _noteListState.update { notes }
+            _noteListState.update {
+                return@update notes
+            }
         }
     }
 

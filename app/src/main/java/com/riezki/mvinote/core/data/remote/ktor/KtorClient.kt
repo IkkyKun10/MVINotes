@@ -14,6 +14,7 @@ import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.http.URLProtocol
 import io.ktor.http.parameters
+import io.ktor.http.path
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
@@ -30,6 +31,7 @@ class KtorClient(
             url {
                 protocol = URLProtocol.HTTPS
                 host = BASE_URL
+                path("api/")
                 parameters.append("key", API_KEY)
             }
         }
@@ -54,9 +56,6 @@ class KtorClient(
 
     suspend fun searchImage(query: String) = hostEngine.get {
         parameter("q", query)
-        parameters {
-            append("q", query)
-        }
     }.body<ImageListDto?>()
 
     companion object {

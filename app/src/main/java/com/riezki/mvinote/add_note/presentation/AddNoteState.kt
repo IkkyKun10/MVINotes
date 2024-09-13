@@ -11,7 +11,7 @@ data class AddNoteState(
     val description: String = "",
     val images: List<String> = emptyList(),
     val imageSearchQuery: String = "",
-    val isImagesDialogShowing: Boolean = false,
+    var isImagesDialogShowing: Boolean = false,
     val isLoading: Boolean = false,
     val imageUrl: String = "",
     val messageError: String? = "",

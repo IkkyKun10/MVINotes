@@ -28,10 +28,6 @@ class NoteRepositoryImpl(
     }
 
     override fun getNotes(): Flow<List<NoteItem>> {
-        return flow {
-            dao.getNotes().map { notes ->
-                emit(notes.map { it.toNoteItem() })
-            }
-        }
+        return dao.getNotes().map { notes -> notes.map { it.toNoteItem() } }
     }
 }

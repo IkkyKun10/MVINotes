@@ -10,8 +10,10 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -31,7 +33,11 @@ class AddNoteViewModel @Inject constructor(
     val addNoteState = _addNoteState.asStateFlow()
 
     private val _notedSavedChannel = Channel<Boolean>()
-    val notedSavedChannel = _notedSavedChannel.receiveAsFlow()
+    val notedSavedChannel = _notedSavedChannel.receiveAsFlow().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = false
+    )
 
     fun onAction(actions: AddNoteActions) {
         when (actions) {

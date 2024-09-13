@@ -1,7 +1,6 @@
 package com.riezki.mvinote.core.data.remote.dto
 
-import kotlinx.serialization.*
-
+import kotlinx.serialization.Serializable
 
 /**
  * @author riezkymaisyar

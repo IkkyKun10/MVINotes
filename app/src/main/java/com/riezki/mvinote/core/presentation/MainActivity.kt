@@ -6,7 +6,10 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -51,8 +54,8 @@ class MainActivity : ComponentActivity() {
                 LaunchedEffect(key1 = true) {
                     viewModel.loadNotes()
                 }
-
                 NoteListScreen(
+                    modifier = modifier,
                     onNavigateToAddNote = { navController.navigate(Screen.AddNote) },
                     noteList = noteListState,
                     onChangeOrder = viewModel::changeOrder,
@@ -65,14 +68,14 @@ class MainActivity : ComponentActivity() {
                 val viewModel = hiltViewModel<AddNoteViewModel>()
 
                 val addNoteState by viewModel.addNoteState.collectAsStateWithLifecycle()
-                val noteSaved by viewModel.notedSavedChannel.collectAsStateWithLifecycle(initialValue = false)
-
+                val noteSaved = viewModel.notedSavedChannel.collectAsState()
+                println("noteSaved: " + noteSaved.value)
                 AddNoteScreen(
+                    addNoteState = addNoteState,
+                    noteSaved = noteSaved,
                     onSave = {
                         navController.popBackStack()
                     },
-                    addNoteState = addNoteState,
-                    noteSaved = noteSaved,
                     onUpdateImage = viewModel::onAction,
                     onUpdateTitle = viewModel::onAction,
                     onUpdateDescription = viewModel::onAction,
